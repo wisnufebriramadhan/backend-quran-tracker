@@ -7,18 +7,29 @@ use App\Models\User;
 
 class UserController extends Controller
 {
+    /**
+     * List users (including soft deleted)
+     */
     public function index()
     {
-        $users = User::orderBy('created_at', 'desc')->get();
+        $users = User::withTrashed()
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         return view('admin.users.index', compact('users'));
     }
 
+    /**
+     * Toggle active / inactive user
+     */
     public function toggleActive(User $user)
     {
-        // Jangan nonaktifkan diri sendiri
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Tidak bisa menonaktifkan akun sendiri');
+        }
+
+        if ($user->trashed()) {
+            return back()->with('error', 'User sudah dihapus');
         }
 
         $user->update([
@@ -28,11 +39,17 @@ class UserController extends Controller
         return back()->with('success', 'Status user diperbarui');
     }
 
+    /**
+     * Toggle role admin / user
+     */
     public function toggleRole(User $user)
     {
-        // Jangan turunkan diri sendiri
         if ($user->id === auth()->id()) {
             return back()->with('error', 'Tidak bisa mengubah role sendiri');
+        }
+
+        if ($user->trashed()) {
+            return back()->with('error', 'User sudah dihapus');
         }
 
         $user->update([
@@ -40,5 +57,35 @@ class UserController extends Controller
         ]);
 
         return back()->with('success', 'Role user diperbarui');
+    }
+
+    /**
+     * Soft delete user
+     */
+    public function destroy(User $user)
+    {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'Tidak bisa menghapus akun sendiri');
+        }
+
+        if ($user->trashed()) {
+            return back()->with('error', 'User sudah dihapus');
+        }
+
+        $user->delete(); // soft delete
+
+        return back()->with('success', 'User berhasil dihapus');
+    }
+
+    /**
+     * Restore soft deleted user
+     */
+    public function restore($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+
+        $user->restore();
+
+        return back()->with('success', 'User berhasil dipulihkan');
     }
 }

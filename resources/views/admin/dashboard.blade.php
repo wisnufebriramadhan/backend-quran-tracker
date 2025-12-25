@@ -1,150 +1,89 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('admin.layout')
 
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@section('content')
 
-    <style>
-        :root {
-            --primary: #2563eb;
-            --bg: #f4f6f8;
-            --card: #ffffff;
-            --text: #1f2937;
-            --muted: #6b7280;
-        }
+{{-- PAGE TITLE --}}
+<div class="section" style="margin-top:0">
+    <h3>Dashboard Overview</h3>
+    <p style="color:var(--muted);font-size:14px;">
+        Ringkasan aktivitas dan status sistem Quran Tracker
+    </p>
+</div>
 
-        * {
-            box-sizing: border-box;
-        }
+{{-- STAT CARDS --}}
+<div class="grid">
+    <div class="card">
+        <span class="badge">Users</span>
+        <h2>Total Users</h2>
+        <div class="value">{{ $totalUsers }}</div>
+    </div>
 
-        body {
-            margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-        }
+    <div class="card">
+        <span class="badge">Quran Logs</span>
+        <h2>Total Quran Logs</h2>
+        <div class="value">{{ $totalLogs ?? 0 }}</div>
+    </div>
 
-        header {
-            background: var(--card);
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, .06);
-        }
+    <div class="card">
+        <span class="badge">Active</span>
+        <h2>Active Users (7 hari)</h2>
+        <div class="value">{{ $activeUsers ?? 0 }}</div>
+    </div>
 
-        header h1 {
-            font-size: 20px;
-            margin: 0;
-        }
+    <div class="card success">
+        <span class="badge">System</span>
+        <h2>Status Sistem</h2>
+        <div class="value">Normal</div>
+    </div>
+</div>
 
-        main {
-            padding: 32px;
-            max-width: 1200px;
-            margin: auto;
-        }
+{{-- QUICK ACTIONS --}}
+<div class="section">
+    <h3>Quick Actions</h3>
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--card);
-            padding: 24px;
-            border-radius: 10px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, .06);
-        }
-
-        .card h2 {
-            margin: 0;
-            font-size: 14px;
-            color: var(--muted);
-            font-weight: 500;
-        }
-
-        .card .value {
-            margin-top: 8px;
-            font-size: 32px;
-            font-weight: bold;
-        }
-
-        .actions {
-            margin-top: 32px;
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        a.button {
-            background: var(--primary);
-            color: white;
-            padding: 10px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        button.logout {
-            background: transparent;
-            border: 1px solid #ddd;
-            padding: 10px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 13px;
-            color: var(--muted);
-        }
-    </style>
-</head>
-
-<body>
-
-    <header>
-        <h1>Admin Dashboard</h1>
-
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="logout" type="submit">Logout</button>
-        </form>
-    </header>
-
-    <main>
-
-        <div class="grid">
-            <div class="card">
-                <h2>Total Users</h2>
-                <div class="value">{{ $totalUsers }}</div>
-            </div>
-
-            {{-- nanti bisa nambah --}}
-            <div class="card">
-                <h2>Status Sistem</h2>
-                <div class="value" style="color: green;">Normal</div>
-            </div>
-        </div>
-
+    <div class="card">
         <div class="actions">
-            <a href="{{ route('admin.users.index') }}" class="button">
-                User Management
+            <a href="{{ route('admin.users.index') }}" class="btn">
+                👥 User Management
+            </a>
+
+            <a href="{{ route('admin.quran.logs') }}" class="btn secondary">
+                📖 Quran Logs
+            </a>
+
+            <a href="#" class="btn secondary">
+                ⚙️ Settings
             </a>
         </div>
+    </div>
+</div>
 
-        <footer>
-            Admin Panel • Laravel {{ app()->version() }}
-        </footer>
+{{-- SYSTEM INFO --}}
+<div class="section">
+    <h3>System Info</h3>
 
-    </main>
+    <div class="grid">
+        <div class="card">
+            <h2>Server Time (WIB)</h2>
+            <div class="value" style="font-size:18px;font-weight:500;">
+                {{ now()->timezone('Asia/Jakarta')->format('d M Y, H:i') }}
+            </div>
+        </div>
 
-</body>
+        <div class="card">
+            <h2>Environment</h2>
+            <div class="value" style="font-size:18px;font-weight:500;">
+                {{ app()->environment() }}
+            </div>
+        </div>
 
-</html>
+        <div class="card">
+            <h2>Laravel Version</h2>
+            <div class="value" style="font-size:18px;font-weight:500;">
+                {{ app()->version() }}
+            </div>
+        </div>
+    </div>
+</div>
+
+@endsection

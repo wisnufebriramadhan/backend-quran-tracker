@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\QuranLogController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,23 +23,40 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 */
 Route::middleware(['auth', 'admin'])
     ->prefix('admin')
+    ->name('admin.')
     ->group(function () {
 
         Route::get('/', [DashboardController::class, 'index'])
-            ->name('admin.dashboard');
+            ->name('dashboard');
 
+        // =====================
+        // USER MANAGEMENT
+        // =====================
         Route::get('/users', [UserController::class, 'index'])
-            ->name('admin.users.index');
+            ->name('users.index');
 
         Route::get('/users/{user}', [UserController::class, 'show'])
-            ->name('admin.users.show');
+            ->name('users.show');
 
-        Route::patch('/users/{user}/status', [UserController::class, 'toggleStatus'])
-            ->name('admin.users.status');
-
-         Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])
-            ->name('admin.users.toggleActive');
+        Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])
+            ->name('users.toggleActive');
 
         Route::patch('/users/{user}/toggle-role', [UserController::class, 'toggleRole'])
-            ->name('admin.users.toggleRole');
+            ->name('users.toggleRole');
+
+        // 🔥 SOFT DELETE & RESTORE
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])
+            ->name('users.destroy');
+
+        Route::patch('/users/{id}/restore', [UserController::class, 'restore'])
+            ->name('users.restore');
+
+        // =====================
+        // QURAN LOGS (ADMIN)
+        // =====================
+        Route::get('/quran-logs', [QuranLogController::class, 'index'])
+            ->name('quran.logs');
+
+        Route::get('/quran-logs/{log}', [QuranLogController::class, 'show'])
+            ->name('quran.logs.show');
     });

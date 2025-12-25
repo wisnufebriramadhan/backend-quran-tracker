@@ -1,129 +1,132 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('admin.layout')
 
-<head>
-    <meta charset="UTF-8">
-    <title>User Management</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+@section('content')
 
-    <style>
-        body {
-            font-family: system-ui;
-            background: #f4f6f8;
-            padding: 30px;
-        }
+{{-- HEADER --}}
+<div class="section" style="margin-top:0">
+    <h3>User Management</h3>
+    <p style="color:var(--muted);font-size:14px;">
+        Kelola akun, role, status aktif, dan user yang dihapus
+    </p>
+</div>
 
-        table {
-            width: 100%;
-            background: #fff;
-            border-collapse: collapse;
-        }
+{{-- ALERT --}}
+@if (session('success'))
+<div class="alert success">{{ session('success') }}</div>
+@endif
 
-        th,
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-        }
+@if (session('error'))
+<div class="alert error">{{ session('error') }}</div>
+@endif
 
-        th {
-            background: #f9fafb;
-            text-align: left;
-        }
+{{-- TABLE --}}
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width:220px">Nama</th>
+                <th>Email</th>
+                <th style="width:120px">Role</th>
+                <th style="width:120px">Status</th>
+                <th style="width:300px;text-align:center;">Aksi</th>
+            </tr>
+        </thead>
 
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
+        <tbody>
+            @foreach ($users as $user)
+            <tr>
 
-        .admin {
-            background: #2563eb;
-            color: white;
-        }
+                {{-- NAMA --}}
+                <td>
+                    <strong>{{ $user->name }}</strong>
+                </td>
 
-        .user {
-            background: #6b7280;
-            color: white;
-        }
+                {{-- EMAIL --}}
+                <td style="color:var(--muted)">
+                    {{ $user->email }}
+                </td>
 
-        .active {
-            color: green;
-        }
+                {{-- ROLE (TEKS + BADGE, TIDAK MUNGKIN HILANG) --}}
+                <td>
+                    <span class=" {{ $user->role === 'admin' ? 'admin' : 'user' }}">
+                        {{ strtoupper($user->role ?? 'USER') }}
+                    </span>
+                </td>
 
-        .inactive {
-            color: red;
-        }
+                {{-- STATUS --}}
+                <td>
+                    @if ($user->deleted_at)
+                    <span class="status deleted">DELETED</span>
+                    @elseif ($user->is_active)
+                    <span class="status active">ACTIVE</span>
+                    @else
+                    <span class="status inactive">INACTIVE</span>
+                    @endif
+                </td>
 
-        button {
-            padding: 6px 10px;
-            margin-right: 6px;
-        }
+                {{-- AKSI --}}
+                <td style="text-align:center">
+                    <div class="actions">
 
-        .top {
-            margin-bottom: 20px;
-        }
-    </style>
-</head>
+                        @if (!$user->deleted_at)
 
-<body>
+                        {{-- ENABLE / DISABLE --}}
+                        <form method="POST"
+                            action="{{ route('admin.users.toggleActive', $user) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button class="btn secondary">
+                                {{ $user->is_active ? 'Disable' : 'Enable' }}
+                            </button>
+                        </form>
 
-    <div class="top">
-        <h2>User Management</h2>
-        <a href="{{ route('admin.dashboard') }}">← Dashboard</a>
-    </div>
+                        {{-- ROLE --}}
+                        <form method="POST"
+                            action="{{ route('admin.users.toggleRole', $user) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button class="btn">
+                                {{ $user->role === 'admin'
+                                        ? 'Jadikan User'
+                                        : 'Jadikan Admin' }}
+                            </button>
+                        </form>
 
-    @if (session('success'))
-    <p style="color:green">{{ session('success') }}</p>
-    @endif
+                        {{-- DELETE --}}
+                        <form method="POST"
+                            action="{{ route('admin.users.destroy', $user) }}"
+                            onsubmit="return confirm('Yakin ingin menghapus user ini?')">
+                            @csrf
+                            @method('DELETE')
+                            <button class="btn danger">
+                                Delete
+                            </button>
+                        </form>
 
-    @if (session('error'))
-    <p style="color:red">{{ session('error') }}</p>
-    @endif
+                        @else
+                        {{-- RESTORE --}}
+                        <form method="POST"
+                            action="{{ route('admin.users.restore', $user->id) }}">
+                            @csrf
+                            @method('PATCH')
+                            <button class="btn">
+                                Restore
+                            </button>
+                        </form>
+                        @endif
 
-    <table>
-        <tr>
-            <th>Nama</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Status</th>
-            <th>Aksi</th>
-        </tr>
+                    </div>
+                </td>
 
-        @foreach ($users as $user)
-        <tr>
-            <td>{{ $user->name }}</td>
-            <td>{{ $user->email }}</td>
-            <td>
-                <span class="badge {{ $user->role }}">
-                    {{ strtoupper($user->role) }}
-                </span>
-            </td>
-            <td>
-                <strong class="{{ $user->is_active ? 'active' : 'inactive' }}">
-                    {{ $user->is_active ? 'ACTIVE' : 'INACTIVE' }}
-                </strong>
-            </td>
-            <td>
-                <form method="POST" action="{{ route('admin.users.toggleActive', $user) }}" style="display:inline">
-                    @csrf
-                    @method('PATCH')
-                    <button type="submit">
-                        {{ $user->is_active ? 'Disable' : 'Enable' }}
-                    </button>
-                </form>
-
-                <form method="POST" action="{{ route('admin.users.toggleRole', $user) }}" style="display:inline">
-                    @csrf
-                    @method('PATCH')
-                    <button type="submit">
-                        {{ $user->role === 'admin' ? 'Jadikan User' : 'Jadikan Admin' }}
-                    </button>
-                </form>
-            </td>
-        </tr>
-        @endforeach
+            </tr>
+            @endforeach
+        </tbody>
     </table>
 
-</body>
+    {{-- PAGINATION --}}
+    <div style="margin-top:16px;">
+        {{ $users->links() }}
+    </div>
+</div>
 
-</html>
+@endsection
