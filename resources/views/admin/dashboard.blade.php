@@ -532,6 +532,8 @@
     <h3 class="section-title">⚡ Quick Actions</h3>
 
     <div class="actions-grid">
+        @auth
+        @if(auth()->user()->isAdmin())
         <a href="{{ route('admin.users.index') }}" class="action-card">
             <div class="action-icon">👥</div>
             <div class="action-content">
@@ -539,6 +541,9 @@
                 <p>Kelola data pengguna</p>
             </div>
         </a>
+        @endif
+        @endauth
+
 
         <a href="{{ route('admin.quran.logs') }}" class="action-card">
             <div class="action-icon">📖</div>

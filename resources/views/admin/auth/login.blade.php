@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Admin Login • WisnuFebri</title>
+    <title>Login • WisnuFebri</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
@@ -205,7 +205,7 @@
 
     <div class="login-card">
         <div class="login-header">
-            <h1>Admin Login</h1>
+            <h1>Login</h1>
             <p>Secure access to system dashboard</p>
         </div>
 
@@ -234,7 +234,7 @@
                 <input type="text" name="captcha" required>
             </div>
 
-            <button type="submit">Sign In</button>
+            <button type="submit">Masuk</button>
 
             <div class="forgot-password">
                 <a onclick="openForgot()">Lupa password?</a>
@@ -242,7 +242,7 @@
         </form>
 
         <div class="login-footer">
-            © {{ date('Y') }} WisnuFebri • Admin Panel
+            © {{ date('Y') }} WisnuFebri • Quran Journey
         </div>
     </div>
 
@@ -250,7 +250,7 @@
     <div class="modal" id="forgotModal">
         <div class="modal-box">
             <h3>Reset Password</h3>
-            <p style="font-size:13px;color:#64748b">Masukkan email admin</p>
+            <p style="font-size:13px;color:#64748b">Masukkan email</p>
 
             <input type="email" id="forgotEmail" placeholder="Email">
 

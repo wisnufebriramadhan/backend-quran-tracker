@@ -626,11 +626,16 @@
                     <div class="action-buttons">
                         @if (!$user->deleted_at)
                         {{-- ENABLE / DISABLE --}}
+                        @php
+                        $toggleText = $user->is_active ? 'menonaktifkan' : 'mengaktifkan';
+                        @endphp
+
                         <form method="POST" action="{{ route('admin.users.toggleActive', $user) }}" style="display:inline;">
                             @csrf
                             @method('PATCH')
-                            <button class="action-btn {{ $user->is_active ? 'secondary' : 'success' }}"
-                                onclick="return confirm('Yakin ingin {{ $user->is_active ? 'menonaktifkan' : 'mengaktifkan' }} user ini?')">
+                            <button
+                                class="action-btn {{ $user->is_active ? 'secondary' : 'success' }}"
+                                onclick="return confirm('Yakin ingin {{ $toggleText }} user ini?')">
                                 {{ $user->is_active ? '⏸️ Disable' : '▶️ Enable' }}
                             </button>
                         </form>

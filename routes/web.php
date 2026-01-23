@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\QuranLogController;
 use App\Http\Controllers\Admin\LearningController;
+
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -16,10 +17,9 @@ Route::view('/', 'welcome')->name('home');
 
 /*
 |--------------------------------------------------------------------------
-| Admin Auth (WEB)
+| Auth (Web)
 |--------------------------------------------------------------------------
 */
-
 Route::get('/login', [AuthController::class, 'showLogin'])
     ->name('login');
 
@@ -28,10 +28,11 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
 
-/* =====================
+/*
+|--------------------------------------------------------------------------
 | Forgot Password
-===================== */
-
+|--------------------------------------------------------------------------
+*/
 Route::post('/forgot-password', [AuthController::class, 'sendResetLink']);
 
 Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm'])
@@ -40,48 +41,66 @@ Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm'])
 Route::post('/reset-password', [AuthController::class, 'resetPassword'])
     ->name('password.update');
 
-
 /*
 |--------------------------------------------------------------------------
-| Admin Dashboard (Protected)
+| Admin Area (Protected)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth', 'admin'])
+Route::middleware(['auth'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
 
-        // DASHBOARD
+        /*
+        |----------------------------------
+        | Dashboard (Admin & User)
+        |----------------------------------
+        */
         Route::get('/', [DashboardController::class, 'index'])
             ->name('dashboard');
 
-        // USERS
-        Route::get('/users', [UserController::class, 'index'])
-            ->name('users.index');
+        /*
+        |----------------------------------
+        | Users (ADMIN ONLY)
+        |----------------------------------
+        */
+        Route::middleware('admin')->group(function () {
 
-        Route::get('/users/{user}', [UserController::class, 'show'])
-            ->name('users.show');
+            Route::get('/users', [UserController::class, 'index'])
+                ->name('users.index');
 
-        Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])
-            ->name('users.toggleActive');
+            Route::get('/users/{user}', [UserController::class, 'show'])
+                ->name('users.show');
 
-        Route::patch('/users/{user}/toggle-role', [UserController::class, 'toggleRole'])
-            ->name('users.toggleRole');
+            Route::patch('/users/{user}/toggle-active', [UserController::class, 'toggleActive'])
+                ->name('users.toggleActive');
 
-        Route::delete('/users/{user}', [UserController::class, 'destroy'])
-            ->name('users.destroy');
+            Route::patch('/users/{user}/toggle-role', [UserController::class, 'toggleRole'])
+                ->name('users.toggleRole');
 
-        Route::patch('/users/{id}/restore', [UserController::class, 'restore'])
-            ->name('users.restore');
+            Route::delete('/users/{user}', [UserController::class, 'destroy'])
+                ->name('users.destroy');
 
-        // QURAN LOGS
+            Route::patch('/users/{id}/restore', [UserController::class, 'restore'])
+                ->name('users.restore');
+        });
+
+        /*
+        |----------------------------------
+        | Quran Logs (Admin & User)
+        |----------------------------------
+        */
         Route::get('/quran-logs', [QuranLogController::class, 'index'])
             ->name('quran.logs');
 
         Route::get('/quran-logs/{log}', [QuranLogController::class, 'show'])
             ->name('quran.logs.show');
 
-        // LEARNING
+        /*
+        |----------------------------------
+        | Learning (Admin & User)
+        |----------------------------------
+        */
         Route::get('/learning', [LearningController::class, 'index'])
             ->name('learning.index');
 
