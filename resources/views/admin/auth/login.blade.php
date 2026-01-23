@@ -40,6 +40,7 @@
             padding: 28px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, .35);
             animation: fadeUp .6s ease;
+            position: relative;
         }
 
         @keyframes fadeUp {
@@ -181,6 +182,69 @@
             font-size: 12px;
             color: var(--muted);
         }
+
+        /* Forgot Password Link */
+        .forgot-password {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .forgot-password a {
+            font-size: 13px;
+            color: var(--primary);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* MODAL */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-box {
+            background: var(--card);
+            width: 100%;
+            max-width: 340px;
+            border-radius: 18px;
+            padding: 22px;
+            text-align: center;
+        }
+
+        .modal-box h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+        }
+
+        .modal-box input {
+            margin-bottom: 12px;
+        }
+
+        .modal-box button {
+            margin-top: 8px;
+        }
+
+        .modal-box .cancel {
+            margin-top: 12px;
+        }
+
+        .modal-box .cancel a {
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-box .msg {
+            font-size: 13px;
+            margin-top: 6px;
+            color: var(--danger);
+        }
     </style>
 </head>
 
@@ -225,10 +289,28 @@
                 <span id="btnText">Sign In</span>
                 <span class="spinner" id="spinner" style="display:none"></span>
             </button>
+
+            <div class="forgot-password">
+                <a onclick="openForgot()">Lupa password?</a>
+            </div>
         </form>
 
         <div class="login-footer">
             © {{ date('Y') }} WisnuFebri • Admin Panel
+        </div>
+    </div>
+
+    <!-- MODAL FOR FORGOT PASSWORD -->
+    <div class="modal" id="forgotModal">
+        <div class="modal-box">
+            <h3>Reset Password</h3>
+            <p>Masukkan email untuk menerima link reset password.</p>
+            <input type="email" id="forgotEmail" placeholder="Email">
+            <button onclick="sendReset()">Kirim Link Reset</button>
+            <div class="msg" id="forgotMsg"></div>
+            <div class="cancel">
+                <a onclick="closeForgot()">Batal</a>
+            </div>
         </div>
     </div>
 
@@ -250,6 +332,63 @@
             document.getElementById('btnText').textContent = 'Signing in...';
             document.getElementById('spinner').style.display = 'inline-block';
         });
+
+        function openForgot() {
+            document.getElementById('forgotModal').style.display = 'flex';
+            document.getElementById('forgotMsg').textContent = '';
+        }
+
+        function closeForgot() {
+            document.getElementById('forgotModal').style.display = 'none';
+        }
+
+        async function sendReset() {
+            const email = document.getElementById('forgotEmail').value;
+            const msg = document.getElementById('forgotMsg');
+            const btn = event.target;
+
+            if (!email) {
+                msg.style.color = 'red';
+                msg.textContent = 'Email wajib diisi';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Mengirim...';
+
+            try {
+                const res = await fetch('/api/forgot-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email
+                    })
+                });
+
+                const data = await res.json();
+
+                msg.style.color = '#16a34a';
+                msg.textContent = data.message || 'Jika email terdaftar, link reset akan dikirim';
+
+
+                // Tutup modal otomatis 2 detik setelah sukses
+                setTimeout(() => {
+                    closeForgot();
+                    document.getElementById('forgotEmail').value = ''; // kosongkan input
+                    msg.textContent = '';
+                }, 2000);
+
+            } catch (e) {
+                msg.style.color = 'red';
+                msg.textContent = 'Gagal mengirim reset password';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Kirim Link Reset';
+            }
+        }
     </script>
 
 </body>
