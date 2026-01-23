@@ -48,6 +48,22 @@ class AuthController extends Controller
             return back()->withErrors(['email' => 'Email atau password salah']);
         }
 
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        // 🔒 Pastikan admin
+        if (! $user || ! $user->isAdmin()) {
+            Auth::logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors([
+                'email' => 'Anda bukan admin'
+            ]);
+        }
+
         RateLimiter::clear($key);
         session()->forget('captcha_code');
 
