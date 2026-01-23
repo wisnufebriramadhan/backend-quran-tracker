@@ -474,6 +474,8 @@
 
 {{-- ENHANCED STAT CARDS --}}
 <div class="stats-grid">
+    {{-- Card Users - Hanya tampil untuk Admin --}}
+    @if(Auth::user()->isAdmin())
     <div class="stat-card users">
         <div class="stat-header">
             <div class="stat-icon">👥</div>
@@ -486,20 +488,36 @@
             <span>Aktif terdaftar</span>
         </div>
     </div>
+    @endif
 
+    {{-- Card Quran Logs - Menyesuaikan label berdasarkan role --}}
     <div class="stat-card logs">
         <div class="stat-header">
             <div class="stat-icon">📖</div>
             <span class="stat-badge">Logs</span>
         </div>
-        <div class="stat-title">Total Quran Logs</div>
+        <div class="stat-title">
+            @if(Auth::user()->isAdmin())
+                Total Quran Logs
+            @else
+                Quran Logs Saya
+            @endif
+        </div>
         <div class="stat-value">{{ number_format($totalLogs ?? 0) }}</div>
         <div class="stat-trend up">
             <span>↗</span>
-            <span>Bacaan tercatat</span>
+            <span>
+                @if(Auth::user()->isAdmin())
+                    Bacaan tercatat
+                @else
+                    Bacaan saya
+                @endif
+            </span>
         </div>
     </div>
 
+    {{-- Card Active Users - Hanya tampil untuk Admin --}}
+    @if(Auth::user()->isAdmin())
     <div class="stat-card active">
         <div class="stat-header">
             <div class="stat-icon">⚡</div>
@@ -512,7 +530,9 @@
             <span>7 hari terakhir</span>
         </div>
     </div>
+    @endif
 
+    {{-- Card System Status --}}
     <div class="stat-card system">
         <div class="stat-header">
             <div class="stat-icon">✅</div>
@@ -532,8 +552,7 @@
     <h3 class="section-title">⚡ Quick Actions</h3>
 
     <div class="actions-grid">
-        @auth
-        @if(auth()->user()->isAdmin())
+        @if(Auth::user()->isAdmin())
         <a href="{{ route('admin.users.index') }}" class="action-card">
             <div class="action-icon">👥</div>
             <div class="action-content">
@@ -542,14 +561,18 @@
             </div>
         </a>
         @endif
-        @endauth
-
 
         <a href="{{ route('admin.quran.logs') }}" class="action-card">
             <div class="action-icon">📖</div>
             <div class="action-content">
                 <h4>Quran Logs</h4>
-                <p>Lihat catatan bacaan</p>
+                <p>
+                    @if(Auth::user()->isAdmin())
+                        Lihat catatan bacaan
+                    @else
+                        Lihat bacaan saya
+                    @endif
+                </p>
             </div>
         </a>
 
@@ -561,6 +584,7 @@
             </div>
         </a>
 
+        @if(Auth::user()->isAdmin())
         <a href="#" class="action-card" onclick="alert('Analytics coming soon!'); return false;">
             <div class="action-icon">📊</div>
             <div class="action-content">
@@ -568,6 +592,7 @@
                 <p>Statistik & laporan</p>
             </div>
         </a>
+        @endif
 
         <a href="#" class="action-card" onclick="alert('Notifications coming soon!'); return false;">
             <div class="action-icon">🔔</div>
@@ -594,6 +619,7 @@
             </div>
         </div>
 
+        @if(Auth::user()->isAdmin())
         <div class="info-card">
             <div class="info-label">
                 <span>🌍</span>
@@ -603,6 +629,7 @@
                 {{ app()->environment() }}
             </div>
         </div>
+        @endif
 
         <div class="info-card">
             <div class="info-label">
