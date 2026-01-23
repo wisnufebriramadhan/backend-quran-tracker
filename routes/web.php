@@ -5,7 +5,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\QuranLogController;
-
+use App\Http\Controllers\Admin\LearningController;
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -51,6 +51,7 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
+        // DASHBOARD
         Route::get('/', [DashboardController::class, 'index'])
             ->name('dashboard');
 
@@ -79,4 +80,11 @@ Route::middleware(['auth', 'admin'])
 
         Route::get('/quran-logs/{log}', [QuranLogController::class, 'show'])
             ->name('quran.logs.show');
+
+        // LEARNING
+        Route::get('/learning', [LearningController::class, 'index'])
+            ->name('learning.index');
+
+        Route::post('/learning/attendance', [LearningController::class, 'attend'])
+            ->name('learning.attend');
     });

@@ -13,13 +13,14 @@
     <header>
         <div class="title">
             <h1>Admin Panel</h1>
-            <span>Quran Tracker</span>
+            <span>Quran Journey</span>
         </div>
 
         <nav>
             <a href="{{ route('admin.dashboard') }}" class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Dashboard</a>
             <a href="{{ route('admin.users.index') }}" class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}">Users</a>
             <a href="{{ route('admin.quran.logs') }}" class="{{ request()->routeIs('admin.quran.*') ? 'active' : '' }}">Quran Logs</a>
+            <a href="{{ route('admin.learning.index') }}" class="{{ request()->routeIs('admin.learning.*') ? 'active' : '' }}">Pembelajaran</a>
 
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
