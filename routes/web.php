@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\QuranLogController;
 
@@ -12,7 +12,6 @@ use App\Http\Controllers\Admin\QuranLogController;
 |--------------------------------------------------------------------------
 */
 
-// Landing page
 Route::view('/', 'welcome')->name('home');
 
 /*
@@ -24,11 +23,25 @@ Route::view('/', 'welcome')->name('home');
 Route::get('/login', [AuthController::class, 'showLogin'])
     ->name('login');
 
-// 🔐 Rate limit login (ANTI BRUTE FORCE)
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
+
+/* =====================
+| Forgot Password
+===================== */
+
+Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm']);
+
+Route::post('/forgot-password', [AuthController::class, 'sendResetLink']);
+
+Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm'])
+    ->name('password.reset');
+
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])
+    ->name('password.update');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -40,13 +53,10 @@ Route::middleware(['auth', 'admin'])
     ->name('admin.')
     ->group(function () {
 
-        // DASHBOARD
         Route::get('/', [DashboardController::class, 'index'])
             ->name('dashboard');
 
-        // =====================
-        // USER MANAGEMENT
-        // =====================
+        // USERS
         Route::get('/users', [UserController::class, 'index'])
             ->name('users.index');
 
@@ -59,16 +69,13 @@ Route::middleware(['auth', 'admin'])
         Route::patch('/users/{user}/toggle-role', [UserController::class, 'toggleRole'])
             ->name('users.toggleRole');
 
-        // 🔥 SOFT DELETE & RESTORE
         Route::delete('/users/{user}', [UserController::class, 'destroy'])
             ->name('users.destroy');
 
         Route::patch('/users/{id}/restore', [UserController::class, 'restore'])
             ->name('users.restore');
 
-        // =====================
-        // QURAN LOGS (ADMIN)
-        // =====================
+        // QURAN LOGS
         Route::get('/quran-logs', [QuranLogController::class, 'index'])
             ->name('quran.logs');
 

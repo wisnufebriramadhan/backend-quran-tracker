@@ -44,4 +44,13 @@ class PasswordResetController extends Controller
             ? response()->json(['message' => 'Password reset success'])
             : response()->json(['message' => 'Invalid token'], 400);
     }
+
+    // Tampilkan halaman reset password
+    public function showForm(Request $request)
+    {
+        $token = $request->query('token');
+        $email = $request->query('email');
+
+        return view('admin.auth.reset-password', compact('token', 'email'));
+    }
 }

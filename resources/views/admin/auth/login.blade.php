@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Admin Login • WisnuFebri</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <style>
         :root {
@@ -40,7 +41,6 @@
             padding: 28px;
             box-shadow: 0 25px 50px rgba(0, 0, 0, .35);
             animation: fadeUp .6s ease;
-            position: relative;
         }
 
         @keyframes fadeUp {
@@ -93,7 +93,6 @@
             border: 1px solid #e5e7eb;
             font-size: 14px;
             background: #f9fafb;
-            transition: .2s;
         }
 
         input:focus {
@@ -103,7 +102,6 @@
             box-shadow: 0 0 0 3px var(--primary-soft);
         }
 
-        /* show / hide password */
         .toggle-password {
             position: absolute;
             right: 12px;
@@ -133,36 +131,11 @@
             font-weight: 600;
             color: #fff;
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: .15s ease;
-        }
-
-        button:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 12px 24px rgba(37, 99, 235, .35);
         }
 
         button:disabled {
             opacity: .7;
             cursor: not-allowed;
-        }
-
-        .spinner {
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, .4);
-            border-top: 2px solid #fff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
         }
 
         .captcha {
@@ -172,18 +145,10 @@
             font-size: 14px;
             text-align: center;
             margin-bottom: 14px;
-            font-weight: 600;
-            letter-spacing: 2px;
+            font-weight: 700;
+            letter-spacing: 3px;
         }
 
-        .login-footer {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 12px;
-            color: var(--muted);
-        }
-
-        /* Forgot Password Link */
         .forgot-password {
             text-align: center;
             margin-top: 10px;
@@ -192,8 +157,15 @@
         .forgot-password a {
             font-size: 13px;
             color: var(--primary);
-            text-decoration: none;
             cursor: pointer;
+            text-decoration: none;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 12px;
+            color: var(--muted);
         }
 
         /* MODAL */
@@ -221,29 +193,10 @@
             margin-bottom: 12px;
         }
 
-        .modal-box input {
-            margin-bottom: 12px;
-        }
-
-        .modal-box button {
-            margin-top: 8px;
-        }
-
-        .modal-box .cancel {
-            margin-top: 12px;
-        }
-
-        .modal-box .cancel a {
-            font-size: 13px;
-            color: var(--muted);
-            text-decoration: none;
-            cursor: pointer;
-        }
-
         .modal-box .msg {
             font-size: 13px;
-            margin-top: 6px;
-            color: var(--danger);
+            margin-top: 10px;
+            min-height: 18px;
         }
     </style>
 </head>
@@ -251,7 +204,6 @@
 <body>
 
     <div class="login-card">
-
         <div class="login-header">
             <h1>Admin Login</h1>
             <p>Secure access to system dashboard</p>
@@ -261,7 +213,7 @@
         <div class="error">{{ $errors->first() }}</div>
         @endif
 
-        <form method="POST" action="{{ route('login') }}" id="loginForm">
+        <form method="POST" action="{{ route('login') }}">
             @csrf
 
             <div class="form-group">
@@ -275,20 +227,14 @@
                 <span class="toggle-password" onclick="togglePassword()">Show</span>
             </div>
 
-            {{-- CAPTCHA --}}
-            <div class="captcha">
-                {{ session('captcha_code') }}
-            </div>
+            <div class="captcha">{{ session('captcha_code') }}</div>
 
             <div class="form-group">
                 <label>Captcha</label>
-                <input type="text" name="captcha" placeholder="Masukkan kode di atas" required>
+                <input type="text" name="captcha" required>
             </div>
 
-            <button type="submit" id="loginBtn">
-                <span id="btnText">Sign In</span>
-                <span class="spinner" id="spinner" style="display:none"></span>
-            </button>
+            <button type="submit">Sign In</button>
 
             <div class="forgot-password">
                 <a onclick="openForgot()">Lupa password?</a>
@@ -300,16 +246,24 @@
         </div>
     </div>
 
-    <!-- MODAL FOR FORGOT PASSWORD -->
+    <!-- MODAL RESET -->
     <div class="modal" id="forgotModal">
         <div class="modal-box">
             <h3>Reset Password</h3>
-            <p>Masukkan email untuk menerima link reset password.</p>
+            <p style="font-size:13px;color:#64748b">Masukkan email admin</p>
+
             <input type="email" id="forgotEmail" placeholder="Email">
-            <button onclick="sendReset()">Kirim Link Reset</button>
+
+            <button style="margin-top:12px" onclick="sendReset(this)">
+                Kirim Link Reset
+            </button>
+
             <div class="msg" id="forgotMsg"></div>
-            <div class="cancel">
-                <a onclick="closeForgot()">Batal</a>
+
+            <div style="margin-top:10px">
+                <a onclick="closeForgot()" style="font-size:13px;color:#64748b;cursor:pointer">
+                    Batal
+                </a>
             </div>
         </div>
     </div>
@@ -318,37 +272,29 @@
         function togglePassword() {
             const input = document.getElementById('password');
             const toggle = document.querySelector('.toggle-password');
-            if (input.type === 'password') {
-                input.type = 'text';
-                toggle.textContent = 'Hide';
-            } else {
-                input.type = 'password';
-                toggle.textContent = 'Show';
-            }
+            input.type = input.type === 'password' ? 'text' : 'password';
+            toggle.textContent = input.type === 'password' ? 'Show' : 'Hide';
         }
-
-        document.getElementById('loginForm').addEventListener('submit', function() {
-            document.getElementById('loginBtn').disabled = true;
-            document.getElementById('btnText').textContent = 'Signing in...';
-            document.getElementById('spinner').style.display = 'inline-block';
-        });
 
         function openForgot() {
             document.getElementById('forgotModal').style.display = 'flex';
             document.getElementById('forgotMsg').textContent = '';
+            document.getElementById('forgotEmail').value = '';
         }
 
         function closeForgot() {
             document.getElementById('forgotModal').style.display = 'none';
         }
 
-        async function sendReset() {
-            const email = document.getElementById('forgotEmail').value;
+        async function sendReset(btn) {
+            const email = document.getElementById('forgotEmail').value.trim();
             const msg = document.getElementById('forgotMsg');
-            const btn = event.target;
+            const token = document.querySelector('meta[name="csrf-token"]').content;
+
+            msg.textContent = '';
 
             if (!email) {
-                msg.style.color = 'red';
+                msg.style.color = '#dc2626';
                 msg.textContent = 'Email wajib diisi';
                 return;
             }
@@ -357,10 +303,11 @@
             btn.textContent = 'Mengirim...';
 
             try {
-                const res = await fetch('/api/forgot-password', {
+                const res = await fetch('/forgot-password', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': token,
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
@@ -368,22 +315,25 @@
                     })
                 });
 
-                const data = await res.json();
+                let data = {};
+                try {
+                    data = await res.json();
+                } catch (_) {}
+
+                if (!res.ok) {
+                    msg.style.color = '#dc2626';
+                    msg.textContent = data.message ?? 'Terjadi kesalahan';
+                    return;
+                }
 
                 msg.style.color = '#16a34a';
-                msg.textContent = data.message || 'Jika email terdaftar, link reset akan dikirim';
-
-
-                // Tutup modal otomatis 2 detik setelah sukses
-                setTimeout(() => {
-                    closeForgot();
-                    document.getElementById('forgotEmail').value = ''; // kosongkan input
-                    msg.textContent = '';
-                }, 2000);
+                msg.textContent =
+                    data.message ??
+                    'Jika email terdaftar, link reset password telah dikirim.';
 
             } catch (e) {
-                msg.style.color = 'red';
-                msg.textContent = 'Gagal mengirim reset password';
+                msg.style.color = '#dc2626';
+                msg.textContent = 'Gagal menghubungi server';
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Kirim Link Reset';
