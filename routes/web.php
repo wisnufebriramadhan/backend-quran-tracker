@@ -32,8 +32,6 @@ Route::post('/logout', [AuthController::class, 'logout'])
 | Forgot Password
 ===================== */
 
-Route::get('/forgot-password', [AuthController::class, 'showForgotPasswordForm']);
-
 Route::post('/forgot-password', [AuthController::class, 'sendResetLink']);
 
 Route::get('/reset-password', [AuthController::class, 'showResetPasswordForm'])

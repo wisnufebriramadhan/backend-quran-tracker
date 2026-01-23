@@ -81,10 +81,6 @@ class AuthController extends Controller
     // =====================
     // FORGOT PASSWORD
     // =====================
-    public function showForgotPasswordForm()
-    {
-        return view('admin.auth.forgot-password');
-    }
 
     public function sendResetLink(Request $request)
     {
