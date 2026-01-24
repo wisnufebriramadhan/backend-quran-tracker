@@ -13,7 +13,7 @@ return [
     // 🔥 Tambahan untuk reset password (API / Flutter)
     'frontend_url' => env('FRONTEND_URL'),
 
-    'timezone' => 'UTC',
+    'timezone' => 'Asia/Jakarta',
 
     'locale' => env('APP_LOCALE', 'en'),
 
