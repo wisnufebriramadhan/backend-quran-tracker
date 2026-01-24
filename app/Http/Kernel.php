@@ -40,12 +40,11 @@ class Kernel extends HttpKernel
 
     /**
      * Middleware aliases.
-     *
-     * ⛔ JANGAN taruh alias di middlewareGroups
-     * ✅ Semua alias HARUS di sini
      */
     protected $middlewareAliases = [
-        'auth'  => \Illuminate\Auth\Middleware\Authenticate::class,
-        'admin' => \App\Http\Middleware\AdminMiddleware::class,
+        'auth'       => \Illuminate\Auth\Middleware\Authenticate::class,
+        'admin'      => \App\Http\Middleware\AdminMiddleware::class,
+        'isactive'     => \App\Http\Middleware\CheckUserActive::class,        // ✅ TAMBAHKAN INI
+        'api.active' => \App\Http\Middleware\CheckApiUserActive::class,     // ✅ TAMBAHKAN INI
     ];
 }

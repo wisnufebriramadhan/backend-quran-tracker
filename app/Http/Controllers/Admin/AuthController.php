@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use App\Models\User; // ✅ TAMBAHKAN INI
 
 class AuthController extends Controller
 {
@@ -44,7 +45,36 @@ class AuthController extends Controller
             return back()->withErrors(['captcha' => 'Captcha salah']);
         }
 
+        // ✅ CEK USER SEBELUM LOGIN
+        $user = User::where('email', $request->email)->first();
+
+        // ❌ User tidak ditemukan
+        if (!$user) {
+            session(['captcha_code' => strtoupper(Str::random(5))]);
+            return back()->withErrors([
+                'email' => 'Email tidak terdaftar.'
+            ])->onlyInput('email');
+        }
+
+        // ❌ User sudah dihapus (soft delete)
+        if ($user->trashed()) {
+            session(['captcha_code' => strtoupper(Str::random(5))]);
+            return back()->withErrors([
+                'email' => 'Akun Anda telah dihapus. Silakan hubungi administrator.'
+            ])->onlyInput('email');
+        }
+
+        // ❌ User di-disable oleh admin
+        if (!$user->is_active) {
+            session(['captcha_code' => strtoupper(Str::random(5))]);
+            return back()->withErrors([
+                'email' => 'Akun Anda sedang dalam proses peninjauan oleh administrator. Setelah disetujui, pemberitahuan akan dikirimkan melalui email yang terdaftar.'
+            ])->onlyInput('email');
+        }
+
+        // ✅ CEK PASSWORD
         if (!Auth::attempt($request->only('email', 'password'))) {
+            session(['captcha_code' => strtoupper(Str::random(5))]);
             return back()->withErrors(['email' => 'Email atau password salah']);
         }
 
@@ -52,13 +82,11 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        // 🔒 Pastikan admin
+        // 🔒 Pastikan admin (OPSIONAL - uncomment jika perlu)
         // if (! $user || ! $user->isAdmin()) {
         //     Auth::logout();
-
         //     $request->session()->invalidate();
         //     $request->session()->regenerateToken();
-
         //     return back()->withErrors([
         //         'email' => 'Anda bukan admin'
         //     ]);

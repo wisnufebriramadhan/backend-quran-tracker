@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\QuranLogController;
 use App\Http\Controllers\Admin\LearningController;
+use App\Http\Middleware\CheckUserActive; // ✅ TAMBAHKAN INI
 
 /*
 |--------------------------------------------------------------------------
@@ -46,7 +47,7 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])
 | Admin Area (Protected)
 |--------------------------------------------------------------------------
 */
-Route::middleware(['auth'])
+Route::middleware(['auth', 'isactive'])  
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {

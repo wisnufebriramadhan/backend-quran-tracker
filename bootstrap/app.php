@@ -17,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // 🔑 DAFTARKAN ALIAS MIDDLEWARE DI SINI
         $middleware->alias([
             'admin' => AdminMiddleware::class,
+            'isactive'     => \App\Http\Middleware\CheckUserActive::class,        // ✅ TAMBAHKAN INI
+            'api.active' => \App\Http\Middleware\CheckApiUserActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

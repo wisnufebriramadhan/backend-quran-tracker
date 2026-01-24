@@ -20,7 +20,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
-        'is_active',
+        // 'is_active', // ← HAPUS INI agar user tidak bisa set sendiri
     ];
 
     /**
@@ -29,6 +29,14 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+    ];
+
+    /**
+     * Default attribute values
+     */
+    protected $attributes = [
+        'is_active' => false,  // ✅ DEFAULT FALSE
+        'role' => 'user',       // ✅ DEFAULT ROLE USER
     ];
 
     /**
@@ -55,5 +63,29 @@ class User extends Authenticatable
     public function quranLogs()
     {
         return $this->hasMany(QuranLog::class);
+    }
+
+    /**
+     * Attendances
+     */
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    /**
+     * Scope: Get only active users
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope: Get only inactive users
+     */
+    public function scopeInactive($query)
+    {
+        return $query->where('is_active', false);
     }
 }
