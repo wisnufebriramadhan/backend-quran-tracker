@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\QuranLogController;
-
+use App\Http\Controllers\LearningApiController;
+    
 /*
 |--------------------------------------------------------------------------
 | AUTH - PUBLIC
@@ -36,4 +37,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/quran/streak', [QuranLogController::class, 'streak']);
     Route::get('/quran/calendar', [QuranLogController::class, 'calendar']);
     Route::get('/quran/logs/by-date', [QuranLogController::class, 'byDate']);
+
+    // Learning & Attendance APIs
+    Route::prefix('learning')->group(function () {
+        Route::get('/', [LearningApiController::class, 'index']);
+        Route::post('/attend', [LearningApiController::class, 'attend']);
+        Route::get('/history', [LearningApiController::class, 'history']);
+        Route::post('/check-location', [LearningApiController::class, 'checkLocation']);
+    });
 });
